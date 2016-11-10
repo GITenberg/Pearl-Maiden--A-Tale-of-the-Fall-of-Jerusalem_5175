@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: VYvcvd/Fkp0O6s8hDPi1z6NSsf5+SJdnEJ+2+XqX+Huh6oyaO/STj61C8LhryiV1FaqUFHW0szbQVgajURD/+DUjGcbH/cQdeJwflLMK2WZ5MaOQzXC1/jUwXRlI3789FvNF+lsthHy9iYHVImFnnZr8Iv8YhEJAy90XzhQFbYwMOYOvhNQeaubGXs1mneI2QvLv+JxdPVK4W30zk2Oswz1wbLZmsVQc65foqDjh1oUy9N/aV0SuUAMqYCwqmTX/ENIwBhIfq0HqHx2stHNSRYGvl8selxZbMtQuWHtbp8Lbsj93NKaRUbTXyjUSB8HJytK3bTDRww/7BmLag7wcbiwfntJ00X3mfnjpKyfuuoqCxnUVWAVTxlePgqB9RwBcS/v0E6ouIAQjk/sOs8HImt2YyggUGnn9C5Tqs53fEJ8tXZLgonAx4C9Wz9VUL5LfTMqnfPp10gak1dXP3kUEKW9/LkDZQd0fU9OmOSVsAyBvo4IrPeu8t61ecttPL63oX36IL4X9s8ABD0kEkKaeaqRCOZAt9MnBpOc9WyF9rSYrZ9eNP63iTKYXq2qONCYaCJZW6I9006isbezfFnf/MNrARoavctUeHBkHb57lALfT0i8HCVZQkP8i1aRP04hJUhAWGyy37KhEGk8CXkU46zpeBORC+o91N6D6jlgg4DI=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Pearl-Maiden--A-Tale-of-the-Fall-of-Jerusalem_5175
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
